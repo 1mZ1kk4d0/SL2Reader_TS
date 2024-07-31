@@ -1,0 +1,18 @@
+{
+  "name": "asda",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/app.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1"
+  }
+}
