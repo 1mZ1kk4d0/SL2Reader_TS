@@ -6,15 +6,17 @@ const KEY = Buffer.from([
 ]);
 
 
-export async function decryptFile(raw: Buffer): Promise<Buffer> {
+export function decryptFile(raw: Buffer): Buffer {
 
 
     try {
 
         const iv = raw.subarray(0, 16);
-        const encryptedData = raw.slice(32);
+
+        const encryptedData = raw
 
         const decipher = createDecipheriv('aes-128-cbc', KEY, iv);
+
         const decrypted = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
 
         return decrypted;

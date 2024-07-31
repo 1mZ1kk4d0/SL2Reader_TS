@@ -29,11 +29,10 @@ class BND4Entry {
     entryData: Buffer;
     decryptedData: Buffer;
     checksum: Buffer;
-    decrypted: boolean;
     charEntryDataOffset: number;
     charEntryNameOffset: number;
 
-    constructor(raw: Buffer, index: number, profile: Profile) {
+    constructor(raw: Buffer, index: number, profile: Profile, encrypted: boolean) {
 
 
         this.profile = profile;
@@ -53,12 +52,14 @@ class BND4Entry {
         this.iv = this.raw.subarray(this.charEntryOffset, this.charEntryDataOffset + 16);
         this.entryData = this.raw.subarray(this.charEntryDataOffset + 16, this.charEntryDataOffset + this.charEntrySize);
 
-        this.decryptedData = Buffer.alloc(0);
+        this.decryptedData = !encrypted ? Buffer.alloc(0) : decryptFile(this.entryData); //if encrypted I Decrypt
         this.checksum = this.raw.subarray(this.charEntryOffset, this.charEntryOffset + 16);
-        this.decrypted = false;
     }
+    
 
     getCharacters() {
+
+        console.log(this.iv)
 
         const chars: Character[] = [];
 
@@ -68,7 +69,7 @@ class BND4Entry {
             for (let i = 0; i <= this.index; i++) {
                 const offset_name = profile[this.profile].slot_data_offset + 10 + i * profile[this.profile].slot_length;
                 chars.push({
-                    character_name: readNullTerminatedUTF16LEString(this.entryData, offset_name)
+                    character_name: readNullTerminatedUTF16LEString(this.decryptedData, offset_name)
                 });
             }
         }
@@ -118,10 +119,7 @@ async function loadSL2(filePath: string, profile: Profile, encrypted: boolean) {
 
 
     const raw = fs.readFileSync(filePath);
-
-
-
-    const entry = new BND4Entry(encrypted ? await decryptFile(raw) : raw, 10, profile);
+    const entry = new BND4Entry(raw, 10, profile, true);
     const characters = entry.getCharacters();
 
     characters.forEach(e => {
