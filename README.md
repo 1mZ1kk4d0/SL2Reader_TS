@@ -1,3 +1,3 @@
 # Souls Save Reader
 
-projeto opensource para leitura e extração dos dados dos arquivos dos games DS3 Elden Ring
+open source project for reading and extracting data from DS3 Elden Ring game files
