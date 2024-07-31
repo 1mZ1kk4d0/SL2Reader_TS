@@ -7,4 +7,19 @@ export function formatTime(seconds: number) {
   
     return `${formatNumber(hrs)}:${formatNumber(mins)}:${formatNumber(secs)}`;
   }
+
+
+
+
+
+
+
+
+export interface Character {
+  character_name: string;
+  character_level?: number;
+  character_time?: number;
+  character_time_format?: string;
+}
+
   

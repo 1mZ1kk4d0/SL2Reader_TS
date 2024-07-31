@@ -1,4 +1,5 @@
-import { formatTime } from "./utils/utils";
+import { decryptFile } from "./utils/decryptor";
+import { Character, formatTime } from "./utils/utils";
 import fs from 'fs';
 
 const profile = {
@@ -59,12 +60,7 @@ class BND4Entry {
 
     getCharacters() {
 
-        const chars: {
-            character_name: string;
-            character_level?: number;
-            character_time?: number;
-            character_time_format?: string;
-        }[] = [];
+        const chars: Character[] = [];
 
 
 
@@ -117,10 +113,15 @@ function readInt(buffer: Buffer, offset: number) {
     return buffer.readInt32LE(offset);
 }
 
-function loadSL2(filePath: string, profile: Profile) {
+async function loadSL2(filePath: string, profile: Profile, encrypted: boolean) {
+
+
 
     const raw = fs.readFileSync(filePath);
-    const entry = new BND4Entry(raw, 10, profile);
+
+
+
+    const entry = new BND4Entry(encrypted ? await decryptFile(raw) : raw, 10, profile);
     const characters = entry.getCharacters();
 
     characters.forEach(e => {
@@ -134,4 +135,4 @@ const filePath = [
     "C:\\Users\\guilh\\AppData\\Roaming\\DarkSoulsIII\\011000013e20cb97\\DS30000.sl2" // Encrypted DS3
 ];
 
-loadSL2(filePath[0], "ds3");
+loadSL2(filePath[2], "ds3", true);
