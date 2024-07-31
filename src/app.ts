@@ -49,10 +49,10 @@ class BND4Entry {
         this.charEntryNameOffset = raw.readUInt32LE(this.charEntryOffset + 20);
 
         this.name = readNullTerminatedUTF16LEString(this.raw, this.charEntryNameOffset);
-        this.iv = this.raw.subarray(this.charEntryOffset, this.charEntryDataOffset + 16);
+        this.iv = this.raw.subarray(this.charEntryDataOffset, this.charEntryDataOffset + 16);
         this.entryData = this.raw.subarray(this.charEntryDataOffset + 16, this.charEntryDataOffset + this.charEntrySize);
 
-        this.decryptedData = !encrypted ? Buffer.alloc(0) : decryptFile(this.entryData); //if encrypted I Decrypt
+        this.decryptedData = !encrypted ? Buffer.alloc(0) : decryptFile(this.entryData, this.iv); //if encrypted I Decrypt
         this.checksum = this.raw.subarray(this.charEntryOffset, this.charEntryOffset + 16);
     }
     
@@ -67,9 +67,14 @@ class BND4Entry {
 
         if (this.profile === "ds3") {
             for (let i = 0; i <= this.index; i++) {
-                const offset_name = profile[this.profile].slot_data_offset + 10 + i * profile[this.profile].slot_length;
+                const offset_name = profile[this.profile].slot_data_offset + 30 + i * profile[this.profile].slot_length;
+                const offset_level = profile[this.profile].slot_data_offset + 30 + 34 + (i * profile[this.profile].slot_length);
+                const offset3_timestamp = profile[this.profile].slot_data_offset + 30 + 38 + i * profile[this.profile].slot_length;
                 chars.push({
-                    character_name: readNullTerminatedUTF16LEString(this.decryptedData, offset_name)
+                    character_name: readNullTerminatedUTF16LEString(this.decryptedData, offset_name),
+                    character_level: readInt(this.decryptedData, offset_level),
+                    character_time: readInt(this.decryptedData, offset3_timestamp),
+                    character_time_format: formatTime(readInt(this.decryptedData, offset3_timestamp))
                 });
             }
         }

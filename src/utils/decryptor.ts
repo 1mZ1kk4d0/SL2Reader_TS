@@ -6,12 +6,10 @@ const KEY = Buffer.from([
 ]);
 
 
-export function decryptFile(raw: Buffer): Buffer {
+export function decryptFile(raw: Buffer, iv: Buffer): Buffer {
 
 
     try {
-
-        const iv = raw.subarray(0, 16);
 
         const encryptedData = raw
 
