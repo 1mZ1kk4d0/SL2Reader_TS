@@ -9,7 +9,15 @@ export function formatTime(seconds: number) {
   }
 
 
-
+ 
+export function find(buffer: Uint8Array): number {
+    for (let i = 0; i < buffer.length - 1; i++) {
+        if (buffer[i] === 0x00 && buffer[i + 1] === 0x00) {
+            return i;
+        }
+    }
+    return -1; // Retorna -1 se a sequência não for encontrada
+}
 
 
 
