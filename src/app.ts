@@ -64,69 +64,27 @@ class BND4Entry {
         this.decryptedData = !profileData.is_encrypted ? Buffer.alloc(0) : decryptFile(this.entryData, this.iv);
         this.checksum = this.raw.subarray(this.charEntryOffset, this.charEntryOffset + 16);
     }
-
-
-    //based on code in python https://github.com/jtesta/souls_givifier/blob/master/souls_givifier.py
-    getOccupancySlots() {
-
-        const profiles = profile[this.profile]; // ds3 or er
-
-        const maxCharacterSlotCount = 10;
-        const maxCharacterNameLength = 16;
-
-        const entry = this.decryptedData //global constant for the function, so you don't have to change it all the time.
-
-        const slotBytes = entry.subarray(profiles.slot_data_offset, profiles.slot_data_offset + maxCharacterSlotCount);
-        
-        const slotOccupancy = [];
-
-        for (let i = 0; i < 10; i++) {
-
-            if (slotBytes[i] !== 0x00) {
-                const nameOffset = profiles.slot_data_offset + (profiles.slot_length * i);
-                let nameBytes = entry.subarray(nameOffset, nameOffset + (maxCharacterNameLength * 2));
-                
-                const nullPos = nameBytes.indexOf(0x00);
-
-                if (nullPos !== -1) {
-                    nameBytes = nameBytes.subarray(0, nullPos);
-                    
-                }
-
-                const characterName = nameBytes.toString('utf16le').replace(/\0/g, '');
-
-
-                slotOccupancy[i] = characterName;
-            }
-        }
-
-
-        return slotOccupancy;
-    }
     
 
     getCharacters() {
 
         const chars: Character[] = [];
-        //const slotsCount = Math.floor(this.decryptedData.length / profile[this.profile].slot_length);
-
-        console.log(this.getOccupancySlots())
+  
 
         if (this.profile === "ds3") {
+
             const current_profile = profile[this.profile];
             const name_section_size = current_profile.character_name_max_length * 2 + 2;
             const checksum_with_padding_size = 16 + 4;
+
             const level_size = 4;
+
             for (let i = 0; i < current_profile.character_slots_count; i++) {
                 const offset_name = current_profile.slot_data_offset + checksum_with_padding_size + i * current_profile.slot_length;
                 const offset_level = current_profile.slot_data_offset + checksum_with_padding_size + name_section_size + i * current_profile.slot_length;
                 const offset3_timestamp = current_profile.slot_data_offset + checksum_with_padding_size + name_section_size + level_size + i * current_profile.slot_length;
                 const slot_unoccupied = this.decryptedData[current_profile.slots_occupancy_offset + checksum_with_padding_size + i] === 0;
-                if (slot_unoccupied) {
-                    chars.push({
-                        character_slot: i + 1
-                    });
-                } else {
+                if (!slot_unoccupied) {
                     chars.push({
                         character_slot: i + 1,
                         character_name: readNullTerminatedUTF16LEString(this.decryptedData, offset_name),
@@ -141,18 +99,18 @@ class BND4Entry {
 
         if(this.profile === "er") {
             const current_profile = profile[this.profile];
+
             const name_section_size = current_profile.character_name_max_length * 2 + 2;
+
             const level_size = 4;
             for (let i = 0; i < current_profile.character_slots_count; i++) {
+
                 const offset_name = current_profile.slot_data_offset + i * current_profile.slot_length;
                 const offset_level = current_profile.slot_data_offset + name_section_size + i * current_profile.slot_length;
                 const offset3_timestamp = current_profile.slot_data_offset + name_section_size + level_size + i * current_profile.slot_length;
                 const slot_unoccupied = this.entryData[current_profile.slots_occupancy_offset + i] === 0;
-                if (slot_unoccupied) {
-                    chars.push({
-                        character_slot: i + 1
-                    });
-                } else {
+
+                if (!slot_unoccupied) {
                     chars.push({
                         character_slot: i + 1,
                         character_name: readNullTerminatedUTF16LEString(this.entryData, offset_name),
@@ -202,4 +160,4 @@ const filePath = [
     "C:\\Users\\guilh\\AppData\\Roaming\\DarkSoulsIII\\011000013e20cb97\\DS30000.sl2" // Encrypted DS3
 ];
 
-loadSL2(filePath[2], "ds3");
+loadSL2(filePath[1], "er");
