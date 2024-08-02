@@ -8,8 +8,6 @@ export function formatTime(seconds: number) {
     return `${formatNumber(hrs)}:${formatNumber(mins)}:${formatNumber(secs)}`;
   }
 
-
- 
 export function find(buffer: Uint8Array): number {
     for (let i = 0; i < buffer.length - 1; i++) {
         if (buffer[i] === 0x00 && buffer[i + 1] === 0x00) {
@@ -19,15 +17,10 @@ export function find(buffer: Uint8Array): number {
     return -1; // Retorna -1 se a sequência não for encontrada
 }
 
-
-
-
-
 export interface Character {
-  character_name: string;
+  character_slot: number;
+  character_name?: string;
   character_level?: number;
   character_time?: number;
   character_time_format?: string;
 }
-
-  
